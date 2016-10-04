@@ -8,6 +8,13 @@ float sinusoidalInOut( float k ) { return( 0.5 * (1 - cos(PI * k))); }
 float sinusoidalIn( float k ) { return ( 1 - cos(k * PI / 2) ); }
 float sinusoidalOut( float k ) { return ( sin(k * PI / 2) ); }
 
+//	Quadratic
+float quadraticInOut( float k) {
+	if( (k *= 2) < 1 ) {
+		return 0.5 * k * k;
+	}
+	return - 0.5 * (--k * (k -2) - 1);
+}
 /*
 TWEEN.Easing = {
 	Quadratic: {
@@ -16,12 +23,6 @@ TWEEN.Easing = {
 		},
 		Out: function (k) {
 			return k * (2 - k);
-		},
-		InOut: function (k) {
-			if ((k *= 2) < 1) {
-				return 0.5 * k * k;
-			}
-			return - 0.5 * (--k * (k - 2) - 1);
 		}
 	},
 	Cubic: {

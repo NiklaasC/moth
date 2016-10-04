@@ -8,7 +8,7 @@
 class Proximity {
   private:
     int pin;
-    static const int dataSize = 6;
+    static const int dataSize = 6;  //  Number of samples for smoothing
     int data[dataSize];
     int differential[dataSize];
     int dataIndex = 0;

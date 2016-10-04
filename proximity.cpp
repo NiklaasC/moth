@@ -13,7 +13,7 @@ Proximity::Proximity(int setPin) {
   }
 }
 
-//  update
+//  Updates the value from the IR sensor. Creates a smoothed value and a smoothed differential value.
 void Proximity::update() {
   //  Remove the old index value from the running total
   total = total - data[dataIndex];
@@ -41,10 +41,12 @@ void Proximity::update() {
   differentialAverage = differentialTotal / dataSize;
 }
 
+//  Get the smoothed value from the IR sensor
 int Proximity::getAverage() {
   return average;
 }
 
+//  Get the smoothed differential value from the IR sensor
 int Proximity::getDifferentialAverage() {
   return differentialAverage;
 }
