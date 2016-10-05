@@ -21,7 +21,7 @@ class Proximity {
     Proximity(int setPin);
     void update();
     int getAverage();
-    int getDifferentialAverage();
+    int getDifferential();
 
 };
 

@@ -47,6 +47,6 @@ int Proximity::getAverage() {
 }
 
 //  Get the smoothed differential value from the IR sensor
-int Proximity::getDifferentialAverage() {
+int Proximity::getDifferential() {
   return differentialAverage;
 }

@@ -19,10 +19,23 @@
 
 class IMU : public LSM9DS1 {
   private:
-    float weight = 0.2;
+    float weight              = 0.2;  //  For exponential smoothing from 0 to 1
+    
+    /*
     float dataAY              = 0;
     float dataAYOld           = 0;
     float dataAYDifferential  = 0;
+    float dataAX              = 0;
+    float dataAXOld           = 0;
+    float dataAXDifferential  = 0;
+    float dataAZ              = 0;
+    float dataAZOld           = 0;
+    float dataAZDifferential  = 0;
+    */
+    
+    //  First Dimension           Second Dimension
+    //  0 = x, 1 = Y, 2 = z       0 = smoothed data, 1 = last value, 2 = differential, 3 = RAW!
+    float accelerometerData[3][4] = { 0 };
     
   public:
     void initialise();

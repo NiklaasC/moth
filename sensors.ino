@@ -2,63 +2,94 @@
 //  Reads sensor data and sets flags for events
 
 //  Flags for behaviour
-boolean upsidedown = true;
-boolean orientationChange = false;
-unsigned long changeTime = 0;
-int settledInterval = 1000 * 8;
+boolean upsidedown          = true;
+boolean orientationChange   = false;
+boolean jostled             = false;
+
+int settledInterval         = 1000 * 3;
+unsigned long changeTime    = 0;
+
+int jostleInterval          = 1000 * 8;
+unsigned long jostleTime    = 0;
+
+int startledInterval        = 1000 * 8;
+unsigned long startledTime  = 0;
+
 
 //  Recoil
 //  A state for when the moth is picked up, startled or jostled.
-//  A curled state that when placed on a table reads as flat
-//  The tailed will have to be curled a bit to get the moth to read as flat on it's belly.
-//  After a period of time - Have the moth try to flip itself on it's back
+//  The tail will have to be curled a bit to get the moth to read as flat on it's belly.
+//  After a period of time - Have the moth try to flip itself on it's back - version 2?
 
 void updateSensors() {
-  if ( millis() - sensorTime >= sensorInterval ) {
+  if (millis() - sensorTime >= sensorInterval) {
     sensorTime = millis();
     
     iR.update();
     iMU.update();
     
+    jostleStatus();
+    startledStatus();
+    orientationStatus();
     
-    
-    
-    
-    //  Check for being picked up
-    //  Needs another check or different method!
-    if (abs(iMU.getOrientationDifferential()) >= 0.03) {
+  }
+}
+
+//  Checks for disturbances to the moth from accelerometers - sets the jostled flag
+void jostleStatus() {
+  if (abs(iMU.getJostle()) >= 0.03) {
+    if (!jostle) {
       Serial.println("Recoil");
-      //  Testing external editor setting!
+      jostle = true;
     }
-    
-    
-    
-    
-    //  orientationStatus();
-    //  Add to IMU?
-    //  Check orientation!
-    //  Check to see if the moth's orientation has changed
-    //  Does the moth know it's orientation?
-    //  Is it upright?
-    //  Upside-down?
-    if (iMU.getOrientation() < 0.9 && iMU.getOrientation() > -0.9 && !orientationChange) {
-      //  set flag
-      orientationChange = true;
-      Serial.println("Orientation Unknown");
-      changeTime = millis();
+    jostleTime = millis();
+  }
+  if (jostle) {
+    if (millis() - jostleTime >= jostleInterval) {
+      jostle = false;
+      Serial.println("Un-Recoil");
     }
-    if ((iMU.getOrientation() > 0.9 || iMU.getOrientation() < -0.9) && orientationChange ) {
-      if (millis() - changeTime >= settledInterval) {
-        
-        if( iMU.getOrientation() > 0.9) {
-          upsidedown = false;
-          orientationChange = false;
-          Serial.println("Rightway Up!");
-        } else {
-          upsidedown = true;
-          orientationChange = false;
-          Serial.println("Upside Down!");
-        }
+  }
+}
+
+//  Check for fast movements towards the moth
+void startledStatus() {
+  if (iR.getDifferential() > 50) {
+    if (!startled) {
+      startled = true;
+      Serial.print("Startled");
+    }
+    startledTime = millis();
+  }
+  if (startled) {
+    if (millis() - startledTime >= startledInterval) {
+      startled = false;
+      Serial.println("Un-Startled");
+    }
+  }
+}
+
+//  Checks for orientation
+//  Checks to see if the moth's orientation has changed     - bool orientationChange
+//  Checks to see whether the moth is upside-down           - bool upsidedown
+void orientationStatus() {
+  if (iMU.getOrientation() < 0.9 && iMU.getOrientation() > -0.9 && !orientationChange) {
+    //  set flag
+    orientationChange = true;
+    Serial.println("Orientation Unknown");
+    changeTime = millis();
+  }
+  if ((iMU.getOrientation() > 0.9 || iMU.getOrientation() < -0.9) && orientationChange) {
+    if (millis() - changeTime >= settledInterval) {
+      
+      if( iMU.getOrientation() > 0.9) {
+        upsidedown = false;
+        orientationChange = false;
+        Serial.println("Rightway Up!");
+      } else {
+        upsidedown = true;
+        orientationChange = false;
+        Serial.println("Upside Down!");
       }
     }
   }

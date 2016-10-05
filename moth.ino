@@ -18,6 +18,7 @@ IMU iMU;
 
 //  Servos
 
+
 //  Timers
 unsigned long sensorTime      = millis();
 unsigned long behaviourTime   = millis();
@@ -33,7 +34,7 @@ char debugMode = 'D';
 void setup() {
   //  Start serial communication
   Serial.begin(115200);
-  Serial.println("R E S E T");
+  Serial.println("RESET");
   //  delay(500);
   iMU.initialise();
   
