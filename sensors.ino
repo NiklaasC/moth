@@ -39,7 +39,7 @@ void updateSensors() {
 void jostleStatus() {
   if (abs(iMU.getJostle()) >= 0.03) {
     if (!jostle) {
-      Serial.println("Recoil");
+      Serial.println("FLAG: Recoil");
       jostle = true;
     }
     jostleTime = millis();
@@ -47,7 +47,7 @@ void jostleStatus() {
   if (jostle) {
     if (millis() - jostleTime >= jostleInterval) {
       jostle = false;
-      Serial.println("Un-Recoil");
+      Serial.println("FLAG: Un-Recoil");
     }
   }
 }
@@ -57,14 +57,14 @@ void startledStatus() {
   if (iR.getDifferential() > 50) {
     if (!startled) {
       startled = true;
-      Serial.print("Startled");
+      Serial.print("FLAG: Startled");
     }
     startledTime = millis();
   }
   if (startled) {
     if (millis() - startledTime >= startledInterval) {
       startled = false;
-      Serial.println("Un-Startled");
+      Serial.println("FLAG: Un-Startled");
     }
   }
 }
@@ -76,7 +76,7 @@ void orientationStatus() {
   if (iMU.getOrientation() < 0.9 && iMU.getOrientation() > -0.9 && !orientationChange) {
     //  set flag
     orientationChange = true;
-    Serial.println("Orientation Unknown");
+    Serial.println("FLAG: Orientation Unknown");
     changeTime = millis();
   }
   if ((iMU.getOrientation() > 0.9 || iMU.getOrientation() < -0.9) && orientationChange) {
@@ -85,11 +85,11 @@ void orientationStatus() {
       if( iMU.getOrientation() > 0.9) {
         upsidedown = false;
         orientationChange = false;
-        Serial.println("Rightway Up!");
+        Serial.println("FLAG: Orientation: Rightway-up!");
       } else {
         upsidedown = true;
         orientationChange = false;
-        Serial.println("Upside Down!");
+        Serial.println("FLAG: Orientation: Upside-down!");
       }
     }
   }

@@ -13,8 +13,8 @@
 #include "imu.h"
 
 //  Sensors
-Proximity iR( A3 );
-IMU iMU;
+Proximity iR(A3);
+IMU       iMU;
 
 //  Servos
 
