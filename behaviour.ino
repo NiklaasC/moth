@@ -12,7 +12,8 @@ float breath = 0.5;
 //int breathAdjust = 0;
 
 void updateBehaviour() {
-  if ( millis() - behaviourTime <= behaviourInterval ) {
+  if ( millis() - behaviourTime >= behaviourInterval ) {
+    behaviourTime = millis();
     //  Update behaviour
     //  Adjust emotions
   }

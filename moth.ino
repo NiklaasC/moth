@@ -41,14 +41,20 @@ int servoData[totalServos][9] = {
 
 //  Servo Initilisation
 ServoController rLeg;
+ServoController lLeg;
+ServoController upAbdomen;
+ServoController sideAbdomen;
+ServoController wings;
 
 //  Timers
 unsigned long sensorTime      = millis();
 unsigned long behaviourTime   = millis();
+unsigned long movementTime    = millis();
 unsigned long debugTime       = millis();
 
 const int sensorInterval      = 1000/15;
 const int behaviourInterval   = 1000/15;
+const int movementInterval    = 1000/30;
 const int debugInterval       = 1000/1;
 
 char debugMode = 'D';
@@ -58,19 +64,35 @@ void setup() {
   //  Start serial communication
   Serial.begin(115200);
   Serial.println("RESET");
-  //  delay(500);
+  
   iMU.initialise();
   
-  //  Attach servos
+  //  Initialise and attach servos
   rLeg.initialise(servoConfig[0], servoData[0]);
+  lLeg.initialise(servoConfig[1], servoData[1]);
+  upAbdomen.initialise(servoConfig[2], servoData[2]);
+  sideAbdomen.initialise(servoConfig[3], servoData[3]);
+  wings.initialise(servoConfig[4], servoData[4]);
 }
 
 void loop() {
   updateSensors();
   updateBehaviour();
-  //  Move ...
-  rLeg.update(30);
-  //  ... abdomen
-  //  ... wings
+  updateMovement();
   debug();
+}
+
+void updateMovement() {
+  if ( millis() - movementTime >= movementInterval ) {
+    unsigned long lastTime = movementTime;
+    movementTime = millis();
+    //  Get actual DT for actual accuracy
+    unsigned long dt = movementTime - lastTime;
+    
+    rLeg.update(dt);
+    lLeg.update(dt);
+    upAbdomen.update(dt);
+    sideAbdomen.update(dt);
+    wings.update(dt);
+  }
 }

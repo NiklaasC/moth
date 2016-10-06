@@ -11,7 +11,8 @@
 
 void debug() {
   char incomingByte;
-  if ( millis() - debugTime <= debugInterval ) {
+  if ( millis() - debugTime >= debugInterval ) {
+    debugTime = millis();
     //  Regular debug output
     if ( debugMode == 'D' ) {
       iMU.debugIMU();

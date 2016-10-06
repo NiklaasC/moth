@@ -18,8 +18,10 @@ void ServoController::initialise(const int config[5], int data[9]) {
   duration          = data[6];
   direction         = data[7];
   isMoving          = data[8];
+  
+  attach(servoPin);
 }
 
 void ServoController::update(unsigned long dt) {
-  
+  writeMicroseconds(position);
 }
