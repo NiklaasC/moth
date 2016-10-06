@@ -14,7 +14,7 @@ void debug() {
   if ( millis() - debugTime <= debugInterval ) {
     //  Regular debug output
     if ( debugMode == 'D' ) {
-      debugIMU();
+      iMU.debugIMU();
     }
   }
   if ( Serial.available() > 0 ) {

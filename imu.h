@@ -35,13 +35,14 @@ class IMU : public LSM9DS1 {
     
     //  First Dimension           Second Dimension
     //  0 = x, 1 = Y, 2 = z       0 = smoothed data, 1 = last value, 2 = differential, 3 = RAW!
-    float accelerometerData[3][4] = { 0 };
+    float accelerometerData[3][4] = {{0.0}};
     
   public:
     void initialise();
     void update();
     float getOrientation();
     float getOrientationDifferential();
+    float getJostle();
     void debugIMU();
 };
   

@@ -5,6 +5,7 @@
 boolean upsidedown          = true;
 boolean orientationChange   = false;
 boolean jostled             = false;
+boolean startled            = false;
 
 int settledInterval         = 1000 * 3;
 unsigned long changeTime    = 0;
@@ -38,15 +39,15 @@ void updateSensors() {
 //  Checks for disturbances to the moth from accelerometers - sets the jostled flag
 void jostleStatus() {
   if (abs(iMU.getJostle()) >= 0.03) {
-    if (!jostle) {
+    if (!jostled) {
       Serial.println("FLAG: Recoil");
-      jostle = true;
+      jostled = true;
     }
     jostleTime = millis();
   }
-  if (jostle) {
+  if (jostled) {
     if (millis() - jostleTime >= jostleInterval) {
-      jostle = false;
+      jostled = false;
       Serial.println("FLAG: Un-Recoil");
     }
   }

@@ -54,7 +54,7 @@ float IMU::getJostle() {
 }
 
 void IMU::debugIMU() {
-  Serial.print(dataAY);
+  Serial.print(accelerometerData[1][0]);
   Serial.print(" ");
   Serial.println(getJostle());
 }
