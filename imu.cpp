@@ -1,6 +1,11 @@
 //  IMU Sensor Class
 #include "imu.h"
 
+#define SMOOTHED  0
+#define OLD       1
+#define DIFF      2
+#define RAW       3
+
 void IMU::initialise() {
   //  Use the settings struct to set the communication mode
   settings.device.commInterface = IMU_MODE_I2C;
@@ -31,9 +36,9 @@ void IMU::update() {
   //  For each axis use exponential smoothing
   //  0 = smoothed data, 1 = last value, 2 = differential, 3 = RAW!
   for(int count = 0; count < 2; count++ ) {
-    accelerometerData[count][1] = accelerometerData[count][0];
-    accelerometerData[count][0] = (weight * accelerometerData[count][3]) + (1 - weight)*accelerometerData[count][0];
-    accelerometerData[count][2] = accelerometerData[count][0] - accelerometerData[count][1];
+    accelerometerData[count][OLD] = accelerometerData[count][SMOOTHED];
+    accelerometerData[count][SMOOTHED] = (weight * accelerometerData[count][RAW]) + (1 - weight)*accelerometerData[count][SMOOTHED];
+    accelerometerData[count][DIFF] = accelerometerData[count][SMOOTHED] - accelerometerData[count][OLD];
   }
 }
 

@@ -1,15 +1,17 @@
 //  Tweening Functions
+#ifndef TWEEN
+#define TWEEN
 
 //	Linear
-float linear( float k) { return k; }
+float linear(float k) { return k; }
 
 //  Sinusoidal
-float sinusoidalInOut( float k ) { return( 0.5 * (1 - cos(PI * k))); }
-float sinusoidalIn( float k ) { return ( 1 - cos(k * PI / 2) ); }
-float sinusoidalOut( float k ) { return ( sin(k * PI / 2) ); }
+float sinusoidalInOut(float k) { return( 0.5 * (1 - cos(PI * k))); }
+float sinusoidalIn(float k) { return ( 1 - cos(k * PI / 2) ); }
+float sinusoidalOut(float k) { return ( sin(k * PI / 2) ); }
 
 //	Quadratic
-float quadraticInOut( float k) {
+float quadraticInOut(float k) {
 	if( (k *= 2) < 1 ) {
 		return 0.5 * k * k;
 	}
@@ -263,3 +265,4 @@ TWEEN.Interpolation = {
 	}
 };
 */
+#endif

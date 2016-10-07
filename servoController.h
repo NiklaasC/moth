@@ -3,6 +3,7 @@
 #ifndef SERVO_C_H
 #define SERVO_C_H
 
+#include <Arduino.h>
 #include <Servo.h>
 
 class ServoController : public Servo {
@@ -31,11 +32,20 @@ class ServoController : public Servo {
     int duration;       //  In ms per transition - i.e. From recoiled to extended. NOT the whole cycle!
     int direction;      //  1 or -1
     
-    //  Flag to see if the servo is busy
-    int isMoving;
+    //  Flags indicating servo behaviour
+    bool isMoving;
+    bool isTwitching;
+    int twitchTime;
+    int twitchInterval;
+    
   public:
     void initialise(const int config[5], int data[9]);
     void update(unsigned long deltaTime);
+    void breath(unsigned long deltaTime);
+    void twitch(unsigned long deltaTime);
+    void updateBounds(int midpoint, int range);
+    void setTwitchInterval(int interval);
+    void setDuration(int dur);
 };
 
 #endif
