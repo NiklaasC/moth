@@ -68,11 +68,11 @@ void setup() {
   iMU.initialise();
   
   //  Initialise and attach servos
-  rLeg.initialise(servoConfig[0], servoData[0]);
-  lLeg.initialise(servoConfig[1], servoData[1]);
-  upAbdomen.initialise(servoConfig[2], servoData[2]);
+         rLeg.initialise(servoConfig[0], servoData[0]);
+         lLeg.initialise(servoConfig[1], servoData[1]);
+    upAbdomen.initialise(servoConfig[2], servoData[2]);
   sideAbdomen.initialise(servoConfig[3], servoData[3]);
-  wings.initialise(servoConfig[4], servoData[4]);
+        wings.initialise(servoConfig[4], servoData[4]);
 }
 
 void loop() {

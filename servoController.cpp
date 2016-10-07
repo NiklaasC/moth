@@ -19,11 +19,10 @@ void ServoController::initialise(const int config[5], int data[8]) {
   duration          = data[6];
   direction         = data[7];
   
-  isMoving          = false;          //  Is the servo busy with a current instruction
-  isTwitching       = false;          //  Is the servo twitching
+  isMoving          = false;      //  Is the servo busy with a current instruction
+  isTwitching       = false;      //  Is the servo twitching
   twitchTime        = 0;          //  Last twitch
   twitchInterval    = 1000;       //  Next time the leg should twitch - this is updated through behaviours and can be a moving target(!)
-  
   
   attach(servoPin);
 }
@@ -58,7 +57,6 @@ void ServoController::breath(unsigned long dt) {
   
   //  Work out current position
   position = source + ((target - source) * sinusoidalInOut(progress/duration));
-  
 }
 //  A single sweep from source to target to source
 void ServoController::twitch(unsigned long dt) {
@@ -114,6 +112,7 @@ void ServoController::updateBounds(int mid, int rng) {
 void ServoController::setTwitchInterval(int interval) {
   twitchInterval = interval;
 }
+
 void ServoController::setDuration(int dur) {
   duration = dur;
 }
