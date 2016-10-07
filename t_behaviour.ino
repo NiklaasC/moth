@@ -2,7 +2,7 @@
 //  Variables in the range of 0 to 1000
 
 //  Specific state for thrashing about ... busking
-boolean attractMode = false;
+boolean attract = false;
 boolean attractTime = millis();
 boolean attractInterval = 60000; // 60 seconds between busking
 
@@ -21,26 +21,45 @@ void updateBehaviour() {
     behaviourTime = millis();
     //  Update behaviour
     //  Adjust emotions
+    //  Realign reality
+    //  Superimpose alternate belief-system
+    //  Reticulating Splines
     
     //  Abdomen code
     //  Abdomen up-and-down is an indication of breathing so this should nearly always be going.
     //  Behaviour changes the amplitude (range) and position
     //  If the moth is in attractMode
-    upAbdomen.breath();
+    //upAbdomen.setBounds(1222,  222);
+    //upAbdomen.setDuration(1500);              //  Get from breathing code
+    //upA1bdomen.setMode(upAbdomen.Breath);
     
+    //rLeg.setMode(rLeg.Breath);
     //  Side to side movement of abdomen ... sign of happyness? Like a tail wagging?
     //  Extended periods of close ... but not scary interaction = tail wagging!
     
-    
+    /*
     //  Wing code
     //  Keep the wings closed unless the moth is stable and the rightway-up!
     if (!orientationChange && !upsidedown) {
       //  Slowly open wings!
+      if (wings.getFinishMoveStatus()) {
+        //  Done with opening wings ... flutter!
+        wings.setBounds(1100,200);
+        wings.setDuration(1000);                    //  GET THIS FROM BREATHING CODE!
+        wings.setMode(wings.Breath);
+      } else {
+        //  Open wings
+        wings.setBounds(1000,0);
+        wings.setDuration(3000);                    //  Nice and slow!
+        wings.setMode(wings.Move);
+      }
       //  Occational flutter
     } else {
       //  Fold wings / keep wings folded back
-      
-    }
+      //  This will snap the wings back into position
+      wings.setBounds(1500,0);
+      wings.setMode(wings.Move);
+    } */
   }
 }
 

@@ -14,6 +14,7 @@ class ServoController : public Servo {
     int mechanicalMaximum;
     int inverted;           //  0 = normal or 1 = inverted
     int maximumRange;       //  Might be handy?
+    int offset;
     
     //  Operational variables that will change often
     int position;
@@ -33,19 +34,40 @@ class ServoController : public Servo {
     int direction;      //  1 or -1
     
     //  Flags indicating servo behaviour
+    int currentMode;
     bool isMoving;
     bool isTwitching;
-    int twitchTime;
+    unsigned long twitchTime;
     int twitchInterval;
     
+    bool startedMove;
+    bool finishedMove;
+    
   public:
-    void initialise(const int config[5], int data[9]);
+    void initialise(const int config[6], int data[9]);
+    
     void update(unsigned long deltaTime);
+    
+    enum servoMode {
+      Breath,
+      Twitch,
+      Move
+    };
+    
+    void setMode(int m);
     void breath(unsigned long deltaTime);
     void twitch(unsigned long deltaTime);
-    void updateBounds(int midpoint, int range);
-    void setTwitchInterval(int interval);
+    void move(unsigned long deltaTime);
+    
+    void setBounds(int midpoint, int range);
     void setDuration(int dur);
+    
+    void setTwitchInterval(int interval);
+    
+    bool getStartMoveStatus();
+    bool getFinishMoveStatus();
+    
+    void debug();
 };
 
 #endif

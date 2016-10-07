@@ -20,23 +20,23 @@ IMU       iMU;
 //  Servos
 const int totalServos = 5;
 //  Configuration data
-const int servoConfig[totalServos][5] = {
-//  pin Min   Max   Inv MaxRng
-  { 8,  1000, 1250, 0,  250 },  //  Leg
-  { 9,  1000, 1250, 1,  250 },  //  Leg
-  { 10, 1000, 1444, 0,  444 },  //  Abdomen
-  { 11, 1000, 1444, 0,  444 },  //  Abdomen
-  { 12, 1000, 1444, 0,  444 }   //  Wings
+const int servoConfig[totalServos][6] = {
+//  pin Min   Max   Inv MaxRng  Offset
+  { 8,  0,    180,  0,  180,    +0 },  //  Right Leg  //  Moth's Right Leg
+  { 9,  0,    180,  1,  180,    +0 },  //  Left Leg
+  { 10, 0,    180,  0,  180,    +0 },  //  Up Abdomen
+  { 11, 0,    180,  0,  180,    +0 },  //  Side Abdomen
+  { 12, 0,    60,  0,  60,      +0 }     //  Wings             Calibrated
 };
 
 //  Servo status
 int servoData[totalServos][8] = {
 //  pos   mid   rng   src   targt k   dur   dir
-  { 1000, 1125,  250, 1000, 1250, 0,  1000, 1 },
-  { 1250, 1125,  250, 1250, 1000, 0,  1000, 1 },
-  { 1111, 1222,  222, 1111, 1333, 0,  3000, 1 },
-  { 1167, 1222,  110, 1167, 1277, 0,  3000, 1 },
-  { 1167, 1222,  110, 1167, 1277, 0,  5000, 1 }
+  { 0,    0,    0,    0,    0,    0,  1000, 1 },
+  { 0,    0,    0,    0,    0,    0,  1000, 1 },
+  { 0,    0,    0,    0,    0,    0,  1000, 1 },
+  { 0,    0,    0,    0,    0,    0,  1000, 1 },
+  { 0,    0,    0,    0,    0,    0,  1000, 1 }
 };
 
 //  Servo Initilisation
@@ -54,8 +54,8 @@ unsigned long debugTime       = millis();
 
 const int sensorInterval      = 1000/15;
 const int behaviourInterval   = 1000/15;
-const int movementInterval    = 1000/30;
-const int debugInterval       = 1000/1;
+const int movementInterval    = 1000/15;
+const int debugInterval       = 1000/15;
 
 char debugMode = 'D';
 
@@ -76,19 +76,24 @@ void setup() {
 }
 
 void loop() {
+  //  Take sensor data and apply filters to set flags
   updateSensors();
+  //  Take sensor data and adjust the moths internal mental state - set movement parameters
   updateBehaviour();
+  //  Apply the changes made by behaviour to move the moth
   updateMovement();
+  //  Debug output
   debug();
 }
 
 void updateMovement() {
-  if ( millis() - movementTime >= movementInterval ) {
+  if (millis() - movementTime >= movementInterval) {
     unsigned long lastTime = movementTime;
     movementTime = millis();
     //  Get actual DT for actual accuracy
     unsigned long dt = movementTime - lastTime;
     
+    //  These update the position regardless of current operating mode
     rLeg.update(dt);
     lLeg.update(dt);
     upAbdomen.update(dt);

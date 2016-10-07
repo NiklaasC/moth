@@ -15,7 +15,8 @@ void debug() {
     debugTime = millis();
     //  Regular debug output
     if ( debugMode == 'D' ) {
-      iMU.debugIMU();
+      //iMU.debugIMU();
+      rLeg.debug();
     }
   }
   if ( Serial.available() > 0 ) {
