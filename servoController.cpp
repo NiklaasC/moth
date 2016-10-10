@@ -23,8 +23,14 @@ void ServoController::initialise(const int config[5], int data[8]) {
   isTwitching       = false;      //  Is the servo twitching
   twitchTime        = millis();          //  Last twitch
   twitchInterval    = 3000;       //  Next time the leg should twitch - this is updated through behaviours and can be a moving target(!)
-  startedMove       = false;
-  finishedMove      = false;
+  startedPMove       = false;
+  finishedPMove      = false;
+  
+  //  MOVE  ////////////////////////////////
+  startedMove = false;
+  finishedMove = false;
+  
+  //////////////////////////////////////////
   
   attach(servoPin);
 }
@@ -120,8 +126,15 @@ void ServoController::move(unsigned long dt) {
     //  Set the progress to 0 ... and the source to the current position!
     progress = 0;
     source = position;
+    //  I use this with just a midpoint and a range of 0!
+    
+    if (target >= position) {
+      direction = +1;
+    } else {
+      direction = -1;
+    }
   }
-  if (finishedMove == false) {
+  if (!finishedMove) {
     progress += dt * direction;
   }
   //  Loop through progress cycles
@@ -149,7 +162,48 @@ void ServoController::move(unsigned long dt) {
   //  Work out current position
   position = source + ((target - source) * sinusoidalInOut(k));
 }
-
+/*
+//  If this is triggered while direction is -1 ... then the moth goes ballistic!
+void ServoController::panic(unsigned long dt) {
+  //  Move from source to target ... then stay at the target
+  
+  if (!startedPMove) {
+    startedPMove = true;
+    finishedPMove = false;
+    //  At the start of the move ...
+    //  Set the progress to 0 ... and the source to the current position!
+    progress = 0;
+    source = position;
+  }
+  if (finishedPMove == false) {
+    progress += dt * direction;
+  }
+  //  Loop through progress cycles
+  if (progress >= duration) {
+    //  Set to 0 because we are changing the definition of source and target
+    //  Any progress value will now get you to the destination
+    //  Set to 0 so that if there is a transition to another state, progress is essentially set to source.
+    progress = 0;
+    direction = 1;
+    isMoving = false;
+    finishedPMove = true;
+    //  This should stop us getting into trouble transitioning from ... transitions to breath or sweep
+    source = target;
+    midpoint = target;
+    range = 0;
+    
+    //  Somewhere else needs to reset startedMove ???
+    //  TEST  TEST  TEST  TEST  TEST
+  }
+  
+  //  Work out current position
+  float t1 = float(progress);
+  float t2 = float(duration);
+  float k = t1/t2;
+  //  Work out current position
+  position = source + ((target - source) * sinusoidalInOut(k));
+}
+*/
 //  Move statuses
 bool ServoController::getStartMoveStatus() {
   return startedMove;

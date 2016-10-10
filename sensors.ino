@@ -22,7 +22,7 @@ unsigned long playTime  = 0;
 boolean playTimerSet = false;
 
 float orientationBound = 0.88;
-int iRStartle = 20;
+int iRStartle = 50;
 float jostledBound = 0.03;
 
 //  Recoil

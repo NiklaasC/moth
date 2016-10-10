@@ -30,14 +30,21 @@ int breathAmplitude = 20;
 int twitchiness = 3000;
 int twitchRange = 4000;
 
-int happyness = 500;
-int anger     = 500;
+//  When jostled or startled - scared is at 1000! This then is reduced over time to give a smooth function (use tween?)
+//  Reduced only a bit when jostled ...
+//  Reduces to 0 when startled
+int scared = 0;
 
 boolean modeInit = false;
 
 void updateBehaviour() {
   if (millis() - behaviourTime >= behaviourInterval) {
+    
+    unsigned long lastTime = behaviourTime;
     behaviourTime = millis();
+    //  Get actual DT for actual accuracy
+    unsigned long dt = behaviourTime - lastTime;
+    
     //  Update behaviour
     //  Adjust emotions
     //  Realign reality
@@ -45,34 +52,38 @@ void updateBehaviour() {
     //  Reticulating Splines
     switch (currentBehaviour) {
       case behaviour_normal:
-        normalMode();
+        normalMode(dt);
         break;
       case behaviour_attract:
-        attractMode();
+        attractMode(dt);
         break;
       case behaviour_flutter:
-        flutterMode();
+        flutterMode(dt);
         break;
       case behaviour_startled:
-        startledMode();
+        startledMode(dt);
         break;
       case behaviour_jostled:
-        jostledMode();
+        jostledMode(dt);
         break;
       case behaviour_held:
-        heldMode();
+        heldMode(dt);
         break;
       case behaviour_play:
-        playMode();
+        playMode(dt);
         break;
       default:
+        Serial.println("DEFAULT! ERROR!");
         //  If there's an error ... just assume that it's being man-handled to be safe
-        jostledMode();
+        jostledMode(dt);
     }
+    
+    Serial.println(scared);
   }
 }
 
-void normalMode() {
+////////////////////////////////////////////////////////////////////////////////////////  NORMAL
+void normalMode(unsigned long dt) {
   //  upabdomen = always breathing
   //  more excited = breathing faster
   
@@ -118,7 +129,7 @@ void normalMode() {
   
   //  Check to see if it hasn't been disturbed - then set to attractMode
   if (millis() - attractTime >= attractInterval) {
-    changeMode(behaviour_attract);
+    //changeMode(behaviour_attract);
   }
   //  If the moth is being played with - the IR sensor is over a certain limit and it is happy!
   //  ???
@@ -129,12 +140,13 @@ void normalMode() {
   }
   //  If the moth is moved ...
   if (jostled) {
-    changeMode(behaviour_jostled);
+    //changeMode(behaviour_jostled);
   }
   //  If no conditions are met ... then we just continue in the same state.
 }
 
-void attractMode() {
+///////////////////////////////////////////////////////////////////////////////////////// ATTRACT
+void attractMode(unsigned long dt) {
   if (!modeInit) {
     Serial.println("ATTRACT MODE");
     //  bored -> attractMode - looks like it struggles to get onto it's back
@@ -153,7 +165,8 @@ void attractMode() {
   //  jostled
 }
 
-void flutterMode() {
+/////////////////////////////////////////////////////////////////////////////////////////// FLUTTER
+void flutterMode(unsigned long dt) {
   if (!modeInit) {
     Serial.println("FLUTTER MODE");
     //  wings extend and twitch when it is on it's front in a known orientationStatus
@@ -178,26 +191,65 @@ void flutterMode() {
     wings.resetMoveStatus();
   }
   //  CHECK OTHER CONDITIONS
-  //  Once it's fluttering - the moth is on its front and can't do anything ... so it'll just do it's thing!
+  //  Once it's fluttering - the moth is on its front
+  //  It can't do anything ... so it'll just do it's thing!
+  //  Just recoil if it's picked up!
   if (jostled) {
     changeMode(behaviour_jostled);
   }
 }
 
-void startledMode() {
+////////////////////////////////////////////////////////////////////////////////////////////  STARTLED
+void startledMode(unsigned long deltaTime) {
   //  Under Attack
   //  curl up
   //  wait
   //  slowly come back to life ... change to normal mode;
   if (!modeInit) {
     Serial.println("STARTLED MODE");
+    scared = 1000;
+    //  USE STARTLED TIME
+    
+    upAbdomen.setBounds(55,0);
+    upAbdomen.setDuration(3000);
+    upAbdomen.setMode(upAbdomen.Breath);
+    
+    rLeg.setBounds(6,0);               //  Get from happy/angry code
+    rLeg.setDuration(100);               //  Get from happy/angry code
+    rLeg.setTwitchInterval(twitchiness, twitchRange);
+    rLeg.setMode(rLeg.Breath);
+    
+    lLeg.setBounds(40,0);
+    lLeg.setDuration(100);
+    lLeg.setTwitchInterval(twitchiness, twitchRange);
+    lLeg.setMode(lLeg.Breath);
+    
+    sideAbdomen.setBounds(28,0);
+    sideAbdomen.setDuration(100);
+    sideAbdomen.setMode(sideAbdomen.Breath);
     
     modeInit = true;
   }
+  if (millis() - startledTime >= 1000) {
+    scared = scared - (deltaTime / 7);
+    if (scared < 0) {
+      scared = 0;
+    }
+  }
+  
+  //  GOOD LORD MAGIC NUMBERS!
+  int tempp = 55 - (1000-scared)*40/1000;
+  breathAmplitude = 20 * (1000-scared)/1000;
+  upAbdomen.setBounds(tempp,breathAmplitude);
   //  CHECKS
+  if (!startled) {
+    scared = 0;
+    changeMode(behaviour_normal);
+  }
 }
 
-void jostledMode() {
+/////////////////////////////////////////////////////////////////////////////////////////// JOSTLED
+void jostledMode(unsigned long dt) {
   //  Picked up!
   
   if (!modeInit) {
@@ -211,7 +263,8 @@ void jostledMode() {
   //  knownorientation + upsidedown => normal mode
 }
 
-void heldMode() {
+/////////////////////////////////////////////////////////////////////////////////////////// HELD
+void heldMode(unsigned long dt) {
   if (!modeInit) {
     Serial.println("HELD MODE");
     //  Held!
@@ -223,7 +276,8 @@ void heldMode() {
   }
 }
 
-void playMode() {
+//////////////////////////////////////////////////////////////////////////////////////////  PLAYING
+void playMode(unsigned long dt) {
   if (!modeInit) {
     Serial.println("PLAY MODE");
     //  both legs moving simulateneously, like trying to grab at the person interacting with it.

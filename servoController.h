@@ -41,6 +41,10 @@ class ServoController : public Servo {
     int twitchiness;
     int twitchRange;
     
+    //  PANIC!
+    bool startedPMove;
+    bool finishedPMove;
+    
     bool startedMove;
     bool finishedMove;
     
@@ -59,6 +63,7 @@ class ServoController : public Servo {
     void breath(unsigned long deltaTime);
     void twitch(unsigned long deltaTime);
     void move(unsigned long deltaTime);
+    void panic(unsigned long deltaTime);
     
     void setBounds(int midpoint, int range);
     void setDuration(int dur);

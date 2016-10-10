@@ -17,7 +17,7 @@ void debug() {
     if ( debugMode == 'D' ) {
       //iMU.debugIMU();
       //  rLeg.debug();
-      Serial.println(iR.getAverage());
+      //Serial.println(iR.getAverage());
     }
   }
   if ( Serial.available() > 0 ) {
