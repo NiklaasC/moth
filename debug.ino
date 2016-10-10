@@ -15,8 +15,9 @@ void debug() {
     debugTime = millis();
     //  Regular debug output
     if ( debugMode == 'D' ) {
-      iMU.debugIMU();
+      //iMU.debugIMU();
       //  rLeg.debug();
+      Serial.println(iR.getAverage());
     }
   }
   if ( Serial.available() > 0 ) {
@@ -24,7 +25,7 @@ void debug() {
     incomingByte = Serial.read();
     //  "d" command - general debug output
     if ( incomingByte == 'd') {
-      iMU.debugIMU();
+      //iMU.debugIMU();
     }
     if ( incomingByte == 'D') {
       debugMode = 'D';

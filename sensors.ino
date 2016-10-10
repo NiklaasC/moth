@@ -6,6 +6,7 @@ boolean upsidedown          = true;
 boolean orientationChange   = false;
 boolean jostled             = false;
 boolean startled            = false;
+boolean playing             = false;
 
 int settledInterval         = 1000 * 3;
 unsigned long changeTime    = 0;
@@ -16,8 +17,12 @@ unsigned long jostleTime    = 0;
 int startledInterval        = 1000 * 8;
 unsigned long startledTime  = 0;
 
+int playInterval        = 1000 * 3;
+unsigned long playTime  = 0;
+boolean playTimerSet = false;
+
 float orientationBound = 0.88;
-int iRStartle = 50;
+int iRStartle = 20;
 float jostledBound = 0.03;
 
 //  Recoil
@@ -33,10 +38,36 @@ void updateSensors() {
     
     iMU.update();
     
+    playStatus();
     jostleStatus();
     startledStatus();
     orientationStatus();
     
+  }
+}
+
+//  If the IR sensor is over a threshold - for a while - set PLAYING!
+void playStatus() {
+  //  If the theshold is broken
+  if (iR.getAverage() > 500) {
+    //  start the timer to set playing to true
+    if (!playTimerSet) {
+      playTime = millis();
+      playTimerSet = true;
+    }
+  } else {
+    if (playing) {
+      playing = false;
+      Serial.println("NOT PLAYING!");
+    }
+    playTimerSet = false;
+  }
+  
+  if ((millis() - playTime >= playInterval ) && playTimerSet) {
+    if (!playing) {
+      playing = true;
+      Serial.println("PLAYING!");
+    }
   }
 }
 
@@ -63,6 +94,7 @@ void startledStatus() {
   if (iR.getDifferential() > iRStartle) {
     if (!startled) {
       startled = true;
+      playing = false;
       Serial.print("FLAG: Startled");
     }
     startledTime = millis();
@@ -82,6 +114,7 @@ void orientationStatus() {
   if (iMU.getOrientation() < orientationBound && iMU.getOrientation() > -orientationBound && !orientationChange) {
     //  set flag
     orientationChange = true;
+    playing = false;
     Serial.println("FLAG: Orientation Unknown");
     changeTime = millis();
   }

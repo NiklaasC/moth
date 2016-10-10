@@ -44,7 +44,7 @@ void ServoController::update(unsigned long dt) {
   //  Constrain to mechanical minimum and maximum
   position = constrain(position, mechanicalMinimum, mechanicalMaximum);
   write(position);
-  Serial.println(position);
+  //Serial.println(position);
 }
 
 //  A continual sweep from source to target to source ... to target

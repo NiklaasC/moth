@@ -135,14 +135,22 @@ void normalMode() {
 }
 
 void attractMode() {
-  Serial.println("ATTRACT MODE");
-  //  bored -> attractMode - looks like it struggles to get onto it's back
-  //  ... fast alternating movements with left and right ... and pushing itself up with it's tail?
-  //  stop breathing update
-  //  sideways movement with tail.
-  //  Legs move alternate to each other at same speed
-  //  pause abdomen update
-  //  swish abdomen in other direction to leg currently being extended
+  if (!modeInit) {
+    Serial.println("ATTRACT MODE");
+    //  bored -> attractMode - looks like it struggles to get onto it's back
+    //  ... fast alternating movements with left and right ... and pushing itself up with it's tail?
+    //  stop breathing update
+    //  sideways movement with tail.
+    //  Legs move alternate to each other at same speed
+    //  pause abdomen update
+    //  swish abdomen in other direction to leg currently being extended
+    
+    modeInit = true;
+  }
+  //  Check for other states
+  //  timeout => normal
+  //  startled
+  //  jostled
 }
 
 void flutterMode() {
@@ -170,6 +178,10 @@ void flutterMode() {
     wings.resetMoveStatus();
   }
   //  CHECK OTHER CONDITIONS
+  //  Once it's fluttering - the moth is on its front and can't do anything ... so it'll just do it's thing!
+  if (jostled) {
+    changeMode(behaviour_jostled);
+  }
 }
 
 void startledMode() {
@@ -187,16 +199,16 @@ void startledMode() {
 
 void jostledMode() {
   //  Picked up!
-  //  curl up wait for being repossitioned ... or held carefully
-  //  knownorientation + rightside up => wing flutter
-  //  knownorientation + upsidedown => normal mode
-  //  unknown orientation but stable => held mode
+  
   if (!modeInit) {
     Serial.println("JOSTLED MODE");
-    
+    //  curl up wait for being repositioned ... or held carefully
     modeInit = true;
   }
   //  CHECKS
+  //  unknown orientation but stable => held mode
+  //  knownorientation + rightside up => wing flutter
+  //  knownorientation + upsidedown => normal mode
 }
 
 void heldMode() {
@@ -206,6 +218,9 @@ void heldMode() {
     modeInit = true;
   }
   //  CHECK OTHER STATES
+  if (jostled) {
+    //  Being held roughly => curl up ... await reorientation
+  }
 }
 
 void playMode() {
@@ -213,7 +228,7 @@ void playMode() {
     Serial.println("PLAY MODE");
     //  both legs moving simulateneously, like trying to grab at the person interacting with it.
     
-    initMode = true;
+    modeInit = true;
   }
   //  CHECK OTHER STATES
 }
