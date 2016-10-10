@@ -1,6 +1,5 @@
 //  IMU Sensor Class
-/*
-#include "imu.h"
+#include "ad_imu.h"
 
 #define SMOOTHED  0
 #define OLD       1
@@ -8,33 +7,32 @@
 #define RAW       3
 
 void IMU::initialise() {
-  //  Use the settings struct to set the communication mode
-  iMU.settings.device.commInterface = IMU_MODE_I2C;
-  iMU.settings.device.mAddress      = LSM9DS1_M;
-  iMU.settings.device.agAddress     = LSM9DS1_AG;
-  
-  if ( !iMU.begin() ) {
-    Serial.println("Failed to communicate with IMU");
-    //  Loop and await reset
-    while (1) {
-      ;
-    }
-  } else {
-    Serial.println("IMU Initialised");
+  /* Initialise the sensor */
+  if(!begin())
+  {
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("No BNO055 detected ... Check your wiring or I2C ADDR!");
+    while(1);
   }
+  
+  delay(1000);
+    
+  setExtCrystalUse(true);
 }
 
 void IMU::update() {
-  //  Update the accelerometers, gyroscopes and magnetometers.
-  readAccel();  //  Updates ax, ay, az
-  //  readGyro();   //  Updates gx, gy, gz
-  //  readMag();    //  Updates mx, my, mz
+  
+  sensors_event_t event;
+  getEvent(&event);
+  imu::Vector<3> acc = getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
   
   //  Calculate smoothed accelerometer data and differential
   //  Input accelerometer data
-  accelerometerData[0][3] = calcAccel(ax);
-  accelerometerData[1][3] = calcAccel(ay);
-  accelerometerData[2][3] = calcAccel(az);
+  accelerometerData[0][3] = event.orientation.y;
+  
+  accelerometerData[1][3] = acc.x();
+  accelerometerData[2][3] = acc.y();
+  accelerometerData[3][3] = acc.z();
   
   //  For each axis use exponential smoothing
   //  0 = smoothed data, 1 = last value, 2 = differential, 3 = RAW!
@@ -47,23 +45,28 @@ void IMU::update() {
 
 //  The IMU is mounted sideways so what would be the Z axis is actually Y so Orientation is read from accelData[1]
 float IMU::getOrientation() {
-  return accelerometerData[1][0];
+  //  Can't use map as it is integer only - divide by 90 (range: +90 -90) to get number between -1 and 1
+  float temp = accelerometerData[0][0] / 90;
+  
+  return temp;
 }
 float IMU::getOrientationDifferential() {
+  //  change to accelerometer diff? No need ... do I even use this?
   return accelerometerData[1][2];
 }
 
 //  Returns the maximum differential of all axis
 float IMU::getJostle() {
-  float maximum = abs(accelerometerData[0][2]);
-  maximum = max( maximum, abs(accelerometerData[1][2]) );
+  float maximum = abs(accelerometerData[1][2]);
   maximum = max( maximum, abs(accelerometerData[2][2]) );
+  maximum = max( maximum, abs(accelerometerData[3][2]) );
   return maximum;
 }
 
 void IMU::debugIMU() {
-  Serial.print(accelerometerData[1][0]);
+  Serial.print(accelerometerData[0][0]);
   Serial.print(" ");
-  Serial.println(getJostle());
+  Serial.print(getJostle());
+  Serial.print(" ");
+  Serial.println(getOrientation());
 }
-*/

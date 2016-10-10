@@ -1,5 +1,4 @@
 //  Servo controller
-
 #include "servoController.h"
 #include "tween.h"
 
@@ -9,9 +8,8 @@ void ServoController::initialise(const int config[5], int data[8]) {
   mechanicalMaximum = config[2];
   inverted          = config[3];
   maximumRange      = config[4];
-  offset            = config[5];
   
-  position         = data[0];
+  position          = data[0];
   midpoint          = data[1];
   range             = data[2];
   source            = data[3];
@@ -23,7 +21,7 @@ void ServoController::initialise(const int config[5], int data[8]) {
   currentMode       = Breath;
   isMoving          = false;      //  Is the servo busy with a current instruction
   isTwitching       = false;      //  Is the servo twitching
-  twitchTime        = 0;          //  Last twitch
+  twitchTime        = millis();          //  Last twitch
   twitchInterval    = 1000;       //  Next time the leg should twitch - this is updated through behaviours and can be a moving target(!)
   startedMove       = false;
   finishedMove      = false;
@@ -32,20 +30,21 @@ void ServoController::initialise(const int config[5], int data[8]) {
 }
 
 void ServoController::update(unsigned long dt) {
-  //switch (currentMode) {
-  //  case Breath:
+  switch (currentMode) {
+    case Breath:
       breath(dt);
-  //    break;
-  //  case Twitch:
-  //    twitch(dt);
-  //    break;
-  //  case Move:
-  //    move(dt);
-  //    break;
-  //}
+      break;
+    case Twitch:
+      twitch(dt);
+      break;
+    case Move:
+      move(dt);
+      break;
+  }
   //  Constrain to mechanical minimum and maximum
   position = constrain(position, mechanicalMinimum, mechanicalMaximum);
   write(position);
+  Serial.println(position);
 }
 
 //  A continual sweep from source to target to source ... to target
@@ -54,11 +53,6 @@ void ServoController::breath(unsigned long dt) {
   isMoving = 1;
   
   progress += dt * direction;
-  
-  //  Do this everytime the leg moves . . . nah . . . maybe everytime the behaviour is changed
-  //  This is where inversion matters!
-  
-  setBounds(10,0);
   
   //  Loop through progress cycles
   if (progress >= duration ) {
@@ -71,11 +65,9 @@ void ServoController::breath(unsigned long dt) {
   }
   float t1 = float(progress);
   float t2 = float(duration);
-  float temp = t1/t2;
-  Serial.println(temp);
+  float k = t1/t2;
   //  Work out current position
-  position = source + ((target - source) * sinusoidalInOut(temp));
-  Serial.println(position);
+  position = source + ((target - source) * sinusoidalInOut(k));
 }
 //  A single sweep from source to target to source
 void ServoController::twitch(unsigned long dt) {
@@ -86,6 +78,7 @@ void ServoController::twitch(unsigned long dt) {
   
   //  Check if the twitchInterval is reached ... only if the leg isn't currently twitching
   if ((millis() - twitchTime >= twitchInterval) && !isTwitching) {
+    //twitchTime = millis();
     isTwitching = true;
     isMoving = true;
   }
@@ -108,7 +101,11 @@ void ServoController::twitch(unsigned long dt) {
       twitchTime = millis();
     }
     
-    position = source + ((target - source) * sinusoidalInOut(progress/duration));
+    float t1 = float(progress);
+    float t2 = float(duration);
+    float k = t1/t2;
+    //  Work out current position
+    position = source + ((target - source) * sinusoidalInOut(k));
   }
 }
 
@@ -138,7 +135,11 @@ void ServoController::move(unsigned long dt) {
   }
   
   //  Work out current position
-  position = source + ((target - source) * sinusoidalInOut(progress/duration));
+  float t1 = float(progress);
+  float t2 = float(duration);
+  float k = t1/t2;
+  //  Work out current position
+  position = source + ((target - source) * sinusoidalInOut(k));
 }
 
 //  Move statuses

@@ -16,6 +16,9 @@ unsigned long jostleTime    = 0;
 int startledInterval        = 1000 * 8;
 unsigned long startledTime  = 0;
 
+float orientationBound = 0.88;
+int iRStartle = 50;
+float jostledBound = 0.03;
 
 //  Recoil
 //  A state for when the moth is picked up, startled or jostled.
@@ -27,6 +30,7 @@ void updateSensors() {
     sensorTime = millis();
     
     iR.update();
+    
     iMU.update();
     
     jostleStatus();
@@ -38,7 +42,7 @@ void updateSensors() {
 
 //  Checks for disturbances to the moth from accelerometers - sets the jostled flag
 void jostleStatus() {
-  if (abs(iMU.getJostle()) >= 0.03) {
+  if (abs(iMU.getJostle()) >= jostledBound) {
     if (!jostled) {
       Serial.println("FLAG: Recoil");
       jostled = true;
@@ -54,8 +58,9 @@ void jostleStatus() {
 }
 
 //  Check for fast movements towards the moth
+
 void startledStatus() {
-  if (iR.getDifferential() > 50) {
+  if (iR.getDifferential() > iRStartle) {
     if (!startled) {
       startled = true;
       Serial.print("FLAG: Startled");
@@ -74,16 +79,16 @@ void startledStatus() {
 //  Checks to see if the moth's orientation has changed     - bool orientationChange
 //  Checks to see whether the moth is upside-down           - bool upsidedown
 void orientationStatus() {
-  if (iMU.getOrientation() < 0.9 && iMU.getOrientation() > -0.9 && !orientationChange) {
+  if (iMU.getOrientation() < orientationBound && iMU.getOrientation() > -orientationBound && !orientationChange) {
     //  set flag
     orientationChange = true;
     Serial.println("FLAG: Orientation Unknown");
     changeTime = millis();
   }
-  if ((iMU.getOrientation() > 0.9 || iMU.getOrientation() < -0.9) && orientationChange) {
+  if ((iMU.getOrientation() > orientationBound || iMU.getOrientation() < -orientationBound) && orientationChange) {
     if (millis() - changeTime >= settledInterval) {
       
-      if( iMU.getOrientation() > 0.9) {
+      if( iMU.getOrientation() > orientationBound) {
         upsidedown = false;
         orientationChange = false;
         Serial.println("FLAG: Orientation: Rightway-up!");

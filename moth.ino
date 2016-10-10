@@ -9,42 +9,53 @@
 //  Arduino IDE complains about including libraries from within classes unless they are included here too
 //  Investigate cause and find a solution!
 #include <Wire.h>
-#include <SPI.h>
-#include <SparkFunLSM9DS1.h>
-#include "imu.h"
+
+//  Sparkfun IMU
+//#include <SPI.h>
+//#include <SparkFunLSM9DS1.h>
+//#include "imu.h"
+//  Adafruit IMU
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+#include "ad_imu.h"
 
 //  Sensors
 Proximity iR(A3);
-IMU       iMU;
+//  Sparkfun IMU
+//  IMU       iMU;
+IMU iMU;
 
 //  Servos
 const int totalServos = 5;
 //  Configuration data
-const int servoConfig[totalServos][6] = {
+const int servoConfig[totalServos][5] = {
 //  pin Min   Max   Inv MaxRng  Offset
-  { 8,  0,    180,  0,  180,    +0 },  //  Right Leg  //  Moth's Right Leg
-  { 9,  0,    180,  1,  180,    +0 },  //  Left Leg
-  { 10, 0,    180,  0,  180,    +0 },  //  Up Abdomen
-  { 11, 0,    180,  0,  180,    +0 },  //  Side Abdomen
-  { 12, 0,    60,  0,  60,      +0 }     //  Wings             Calibrated
+  { 8,  6,    50,  0,  0 },  //  Right Leg  //  Moth's Right Leg // DONE!
+  { 9,  2,    40,  1,  0 },  //  Left Leg
+  { 10, 5,    60,  0,  0 },  //  Up Abdomen  //  I think this is actually inverted
+  { 11, 2,    55,  0,  0 },  //  Side Abdomen
+  { 12, 3,    60,  0,  60 }     //  Wings             Calibrated
+  
+  //  MINIMUM'S CALIBRATED!
 };
 
 //  Servo status
 int servoData[totalServos][8] = {
 //  pos   mid   rng   src   targt k   dur   dir
-  { 0,    0,    0,    0,    0,    0,  1000, 1 },
-  { 0,    0,    0,    0,    0,    0,  1000, 1 },
-  { 0,    0,    0,    0,    0,    0,  1000, 1 },
-  { 0,    0,    0,    0,    0,    0,  1000, 1 },
-  { 0,    0,    0,    0,    0,    0,  1000, 1 }
+  { 0,    0,    0,    0,    0,    0,  4000, 1 },
+  { 0,    0,    0,    0,    0,    0,  4000, 1 },
+  { 0,    0,    0,    0,    0,    0,  4000, 1 },
+  { 0,    0,    0,    0,    0,    0,  4000, 1 },
+  { 0,    0,    0,    0,    0,    0,  4000, 1 }
 };
 
 //  Servo Initilisation
 ServoController rLeg;
-ServoController lLeg;
-ServoController upAbdomen;
-ServoController sideAbdomen;
-ServoController wings;
+//ServoController lLeg;
+//ServoController upAbdomen;
+//ServoController sideAbdomen;
+//ServoController wings;
 
 //  Timers
 unsigned long sensorTime      = millis();
@@ -52,7 +63,7 @@ unsigned long behaviourTime   = millis();
 unsigned long movementTime    = millis();
 unsigned long debugTime       = millis();
 
-const int sensorInterval      = 1000/15;
+const int sensorInterval      = 1000/8;
 const int behaviourInterval   = 1000/15;
 const int movementInterval    = 1000/15;
 const int debugInterval       = 1000/15;
@@ -64,15 +75,16 @@ void setup() {
   //  Start serial communication
   Serial.begin(115200);
   Serial.println("RESET");
+  delay(500);
   
   iMU.initialise();
   
   //  Initialise and attach servos
-         rLeg.initialise(servoConfig[0], servoData[0]);
-         lLeg.initialise(servoConfig[1], servoData[1]);
-    upAbdomen.initialise(servoConfig[2], servoData[2]);
-  sideAbdomen.initialise(servoConfig[3], servoData[3]);
-        wings.initialise(servoConfig[4], servoData[4]);
+  rLeg.initialise(servoConfig[0], servoData[0]);
+//         lLeg.initialise(servoConfig[1], servoData[1]);
+//    upAbdomen.initialise(servoConfig[2], servoData[2]);
+//  sideAbdomen.initialise(servoConfig[3], servoData[3]);
+//        wings.initialise(servoConfig[4], servoData[4]);
 }
 
 void loop() {
@@ -95,9 +107,9 @@ void updateMovement() {
     
     //  These update the position regardless of current operating mode
     rLeg.update(dt);
-    lLeg.update(dt);
-    upAbdomen.update(dt);
-    sideAbdomen.update(dt);
-    wings.update(dt);
+  //  lLeg.update(dt);
+  //  upAbdomen.update(dt);
+  //  sideAbdomen.update(dt);
+  //  wings.update(dt);
   }
 }

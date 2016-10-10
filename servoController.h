@@ -1,5 +1,4 @@
 //  Servo controller
-
 #ifndef SERVO_C_H
 #define SERVO_C_H
 
@@ -14,7 +13,6 @@ class ServoController : public Servo {
     int mechanicalMaximum;
     int inverted;           //  0 = normal or 1 = inverted
     int maximumRange;       //  Might be handy?
-    int offset;
     
     //  Operational variables that will change often
     int position;
@@ -44,7 +42,7 @@ class ServoController : public Servo {
     bool finishedMove;
     
   public:
-    void initialise(const int config[6], int data[9]);
+    void initialise(const int config[5], int data[9]);
     
     void update(unsigned long deltaTime);
     

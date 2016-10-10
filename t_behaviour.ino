@@ -29,11 +29,15 @@ void updateBehaviour() {
     //  Abdomen up-and-down is an indication of breathing so this should nearly always be going.
     //  Behaviour changes the amplitude (range) and position
     //  If the moth is in attractMode
-    //upAbdomen.setBounds(1222,  222);
-    //upAbdomen.setDuration(1500);              //  Get from breathing code
-    //upA1bdomen.setMode(upAbdomen.Breath);
+    //upAbdomen.setBounds(15,20);
+    //upAbdomen.setDuration(4000);              //  Get from breathing code
+    //upAbdomen.setMode(upAbdomen.Breath);
     
-    //rLeg.setMode(rLeg.Breath);
+    rLeg.setBounds(30,40);
+    rLeg.setDuration(1600);              //  Get from breathing code
+    rLeg.setTwitchInterval(6000);
+    rLeg.setMode(rLeg.Twitch);
+    
     //  Side to side movement of abdomen ... sign of happyness? Like a tail wagging?
     //  Extended periods of close ... but not scary interaction = tail wagging!
     
@@ -68,7 +72,10 @@ void attractMode() {
 }
 
 //  bored -> attractMode - looks like it struggles to get onto it's back
-//  ... fast alternating movements with left and right ... and pushing itself up with it's tail
+//  ... fast alternating movements with left and right ... and pushing itself up with it's tail?
+//  stop breathing update
+//  sideways movement with tail.
+
 //  upabdomen = always breathing
 //  more excited = breathing faster
 //
