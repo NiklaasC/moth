@@ -22,7 +22,7 @@ void ServoController::initialise(const int config[5], int data[8]) {
   isMoving          = false;      //  Is the servo busy with a current instruction
   isTwitching       = false;      //  Is the servo twitching
   twitchTime        = millis();          //  Last twitch
-  twitchInterval    = 1000;       //  Next time the leg should twitch - this is updated through behaviours and can be a moving target(!)
+  twitchInterval    = 3000;       //  Next time the leg should twitch - this is updated through behaviours and can be a moving target(!)
   startedMove       = false;
   finishedMove      = false;
   
@@ -99,6 +99,7 @@ void ServoController::twitch(unsigned long dt) {
       isTwitching = false;
       //  Update the last time the servo twitches
       twitchTime = millis();
+      twitchInterval = random(twitchiness - twitchRange/2, twitchiness + twitchRange/2);
     }
     
     float t1 = float(progress);
@@ -115,23 +116,30 @@ void ServoController::move(unsigned long dt) {
   if (!startedMove) {
     startedMove = true;
     finishedMove = false;
+    //  At the start of the move ...
+    //  Set the progress to 0 ... and the source to the current position!
+    progress = 0;
+    source = position;
   }
-  
-  progress += dt * direction;
-  
+  if (finishedMove == false) {
+    progress += dt * direction;
+  }
   //  Loop through progress cycles
   if (progress >= duration) {
     //  Set to 0 because we are changing the definition of source and target
     //  Any progress value will now get you to the destination
     //  Set to 0 so that if there is a transition to another state, progress is essentially set to source.
     progress = 0;
-    direction = 0;
+    direction = 1;
     isMoving = false;
     finishedMove = true;
     //  This should stop us getting into trouble transitioning from ... transitions to breath or sweep
     source = target;
     midpoint = target;
     range = 0;
+    
+    //  Somewhere else needs to reset startedMove ???
+    //  TEST  TEST  TEST  TEST  TEST
   }
   
   //  Work out current position
@@ -148,6 +156,11 @@ bool ServoController::getStartMoveStatus() {
 }
 bool ServoController::getFinishMoveStatus() {
   return finishedMove;
+}
+
+void ServoController::resetMoveStatus() {
+  startedMove = false;
+  finishedMove = false;
 }
 
 void ServoController::setMode(int m) {
@@ -174,8 +187,9 @@ void ServoController::setBounds(int mid, int rng) {
   }
 }
 
-void ServoController::setTwitchInterval(int interval) {
-  twitchInterval = interval;
+void ServoController::setTwitchInterval(int a, int b) {
+  twitchiness = a;
+  twitchRange = b;
 }
 
 void ServoController::setDuration(int dur) {

@@ -43,19 +43,19 @@ const int servoConfig[totalServos][5] = {
 //  Servo status
 int servoData[totalServos][8] = {
 //  pos   mid   rng   src   targt k   dur   dir
-  { 0,    0,    0,    0,    0,    0,  4000, 1 },
-  { 0,    0,    0,    0,    0,    0,  4000, 1 },
-  { 0,    0,    0,    0,    0,    0,  4000, 1 },
-  { 0,    0,    0,    0,    0,    0,  4000, 1 },
-  { 0,    0,    0,    0,    0,    0,  4000, 1 }
+  { 0,    0,    0,    0,    0,    0,  2000, 1 },
+  { 0,    0,    0,    0,    0,    0,  2000, 1 },
+  { 0,    0,    0,    0,    0,    0,  2000, 1 },
+  { 0,    0,    0,    0,    0,    0,  2000, 1 },
+  { 0,    0,    0,    0,    0,    0,  2000, 1 }
 };
 
 //  Servo Initilisation
 ServoController rLeg;
-//ServoController lLeg;
-//ServoController upAbdomen;
-//ServoController sideAbdomen;
-//ServoController wings;
+ServoController lLeg;
+ServoController upAbdomen;
+ServoController sideAbdomen;
+ServoController wings;
 
 //  Timers
 unsigned long sensorTime      = millis();
@@ -69,7 +69,9 @@ const int movementInterval    = 1000/15;
 const int debugInterval       = 1000/15;
 
 char debugMode = 'D';
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Initialising servos, communication and configuration
 void setup() {
   //  Start serial communication
@@ -80,11 +82,11 @@ void setup() {
   iMU.initialise();
   
   //  Initialise and attach servos
-  rLeg.initialise(servoConfig[0], servoData[0]);
-//         lLeg.initialise(servoConfig[1], servoData[1]);
-//    upAbdomen.initialise(servoConfig[2], servoData[2]);
-//  sideAbdomen.initialise(servoConfig[3], servoData[3]);
-//        wings.initialise(servoConfig[4], servoData[4]);
+         rLeg.initialise(servoConfig[0], servoData[0]);
+         lLeg.initialise(servoConfig[1], servoData[1]);
+    upAbdomen.initialise(servoConfig[2], servoData[2]);
+  sideAbdomen.initialise(servoConfig[3], servoData[3]);
+        wings.initialise(servoConfig[4], servoData[4]);
 }
 
 void loop() {
@@ -107,9 +109,9 @@ void updateMovement() {
     
     //  These update the position regardless of current operating mode
     rLeg.update(dt);
-  //  lLeg.update(dt);
-  //  upAbdomen.update(dt);
-  //  sideAbdomen.update(dt);
-  //  wings.update(dt);
+    lLeg.update(dt);
+    upAbdomen.update(dt);
+    sideAbdomen.update(dt);
+    wings.update(dt);
   }
 }

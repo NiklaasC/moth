@@ -38,6 +38,9 @@ class ServoController : public Servo {
     unsigned long twitchTime;
     int twitchInterval;
     
+    int twitchiness;
+    int twitchRange;
+    
     bool startedMove;
     bool finishedMove;
     
@@ -60,10 +63,11 @@ class ServoController : public Servo {
     void setBounds(int midpoint, int range);
     void setDuration(int dur);
     
-    void setTwitchInterval(int interval);
+    void setTwitchInterval(int a, int b);
     
     bool getStartMoveStatus();
     bool getFinishMoveStatus();
+    void resetMoveStatus();
     
     void debug();
 };
