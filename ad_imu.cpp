@@ -46,7 +46,9 @@ void IMU::update() {
 //  The IMU is mounted sideways so what would be the Z axis is actually Y so Orientation is read from accelData[1]
 float IMU::getOrientation() {
   //  Can't use map as it is integer only - divide by 90 (range: +90 -90) to get number between -1 and 1
-  float temp = accelerometerData[0][0] / 90;
+  //  Added a negative to reverse the direction of the Orientation
+  //  We have the IMU upside-down
+  float temp = -accelerometerData[0][0] / 90;
   
   return temp;
 }

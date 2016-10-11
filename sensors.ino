@@ -29,7 +29,8 @@ boolean playTimerSet = false;
 
 float orientationBound = 0.88;
 int iRStartle = 50;
-float jostledBound = 0.03;
+//  jostledBound was 0.03 - but very very sensitive
+float jostledBound = 0.1;
 
 //  Recoil
 //  A state for when the moth is picked up, startled or jostled.
