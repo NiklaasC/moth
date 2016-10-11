@@ -29,11 +29,9 @@ int breathAmplitude = 20;
 //  Range is total so twitciness varies from twitchiness - range/2 to + range/2
 int twitchiness = 3000;
 int twitchRange = 4000;
+int twitchAmplitude = 50; //RANGE
 
-//  When jostled or startled - scared is at 1000! This then is reduced over time to give a smooth function (use tween?)
-//  Reduced only a bit when jostled ...
-//  Reduces to 0 when startled
-int scared = 0;
+
 
 boolean modeInit = false;
 
@@ -103,12 +101,12 @@ void normalMode(unsigned long dt) {
     upAbdomen.setDuration(breathSpeed);
     upAbdomen.setMode(upAbdomen.Breath);
     
-    rLeg.setBounds(30,40);                //  Get from happy/angry code
-    rLeg.setDuration(1600);               //  Get from happy/angry code
+    rLeg.setBounds(25,twitchAmplitude);                //  Get from happy/angry code
+    rLeg.setDuration(breathSpeed);               //  Get from happy/angry code
     rLeg.setTwitchInterval(twitchiness, twitchRange);
     rLeg.setMode(rLeg.Twitch);
     
-    lLeg.setBounds(30,40);
+    lLeg.setBounds(30,twitchAmplitude);
     lLeg.setDuration(1600);
     lLeg.setTwitchInterval(twitchiness, twitchRange);
     lLeg.setMode(lLeg.Twitch);
@@ -183,7 +181,7 @@ void flutterMode(unsigned long dt) {
   if (wings.getFinishMoveStatus()) {
     //  Done with opening wings ... flutter!
     //  60 is open!
-    wings.setBounds(50,20);
+    wings.setBounds(50,breathAmplitude);
     wings.setDuration(breathSpeed);             //  GET THIS FROM BREATHING CODE!
     wings.setMode(wings.Breath);
     
@@ -207,21 +205,16 @@ void startledMode(unsigned long deltaTime) {
   //  slowly come back to life ... change to normal mode;
   if (!modeInit) {
     Serial.println("STARTLED MODE");
-    scared = 1000;
     //  USE STARTLED TIME
     
     upAbdomen.setBounds(55,0);
-    upAbdomen.setDuration(3000);
+    upAbdomen.setDuration(breathSpeed);
     upAbdomen.setMode(upAbdomen.Breath);
     
-    rLeg.setBounds(6,0);               //  Get from happy/angry code
-    rLeg.setDuration(100);               //  Get from happy/angry code
-    rLeg.setTwitchInterval(twitchiness, twitchRange);
+    rLeg.setBounds(6,0);
     rLeg.setMode(rLeg.Breath);
     
-    lLeg.setBounds(40,0);
-    lLeg.setDuration(100);
-    lLeg.setTwitchInterval(twitchiness, twitchRange);
+    lLeg.setBounds(45,0);
     lLeg.setMode(lLeg.Breath);
     
     sideAbdomen.setBounds(28,0);
@@ -230,17 +223,19 @@ void startledMode(unsigned long deltaTime) {
     
     modeInit = true;
   }
-  if (millis() - startledTime >= 1000) {
-    scared = scared - (deltaTime / 7);
+  
+  if (millis() - startledTime >= 3000) {
+    scared = scared - (deltaTime / ((startledInterval - 3000)/1000));
     if (scared < 0) {
       scared = 0;
     }
   }
   
-  //  GOOD LORD MAGIC NUMBERS!
-  int tempp = 55 - (1000-scared)*40/1000;
-  breathAmplitude = 20 * (1000-scared)/1000;
-  upAbdomen.setBounds(tempp,breathAmplitude);
+  //  Use transition helpers to smooth between states
+  upAbdomen.setBounds(tH(scared, 55, 15),tH(scared,0,breathAmplitude));
+  rLeg.setBounds(tH(scared, 6, 25),tH(scared,0,twitchAmplitude));
+  lLeg.setBounds(tH(scared,45,30),tH(scared,0,twitchAmplitude));
+  
   //  CHECKS
   if (!startled) {
     scared = 0;
@@ -290,4 +285,13 @@ void playMode(unsigned long dt) {
 void changeMode(int newMode) {
   modeInit = false;
   currentBehaviour = newMode;
+}
+
+//  Transition helper
+int tH(int variable, int currentPosition, int desiredPosition) {
+  float temp1 = 1000 - variable;
+  temp1 = temp1/1000;
+  int temp = currentPosition - temp1*(currentPosition - desiredPosition);
+  Serial.print(temp);Serial.print(" ");Serial.println(temp1);
+  return temp;
 }

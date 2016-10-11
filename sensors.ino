@@ -1,6 +1,11 @@
 //  Sensors
 //  Reads sensor data and sets flags for events
 
+//  When jostled or startled - scared is at 1000! This then is reduced over time to give a smooth function (use tween?)
+//  Reduced only a bit when jostled ...
+//  Reduces to 0 when startled
+int scared = 0;
+
 //  Flags for behaviour
 boolean upsidedown          = true;
 boolean orientationChange   = false;
@@ -93,10 +98,12 @@ void jostleStatus() {
 void startledStatus() {
   if (iR.getDifferential() > iRStartle) {
     if (!startled) {
-      startled = true;
-      playing = false;
-      Serial.print("FLAG: Startled");
+      
     }
+    startled = true;
+    playing = false;
+    Serial.print("FLAG: Startled");
+    scared = 1000;
     startledTime = millis();
   }
   if (startled) {
