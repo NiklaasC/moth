@@ -15,7 +15,7 @@ int currentBehaviour = behaviour_normal;
 //  Specific state for thrashing about ... busking
 //  boolean attract = false; <= This is now it's own state!
 unsigned long attractTime = millis();
-long attractInterval = 60000; // 60 seconds between busking
+long attractInterval = 30000; // 60 seconds between busking
 
 //  max breath = 24 breaths in 20 seconds ~1 breath (in and out) per second i cycle in 1000 - 1 cycle per second
 //  min breath = 6 in 30 seconds ~1 breath in 5 seconds 1 cycle in 5000 millis or 0.2 cycles per second
@@ -28,8 +28,8 @@ int breathAmplitude = 20;
 //  For random twitches - used by the servo controller twitch state to set a random twitch interval
 //  Range is total so twitciness varies from twitchiness - range/2 to + range/2
 int twitchiness = 3000;
-int twitchRange = 4000;
-int twitchAmplitude = 50; //RANGE
+int twitchRange = 4000;   //  Timer range
+int twitchAmplitude = 50; //  Physical movement range
 
 
 
@@ -127,7 +127,7 @@ void normalMode(unsigned long dt) {
   
   //  Check to see if it hasn't been disturbed - then set to attractMode
   if (millis() - attractTime >= attractInterval) {
-    //changeMode(behaviour_attract);
+    changeMode(behaviour_attract);
   }
   //  If the moth is being played with - the IR sensor is over a certain limit and it is happy!
   //  ???
@@ -155,12 +155,38 @@ void attractMode(unsigned long dt) {
     //  pause abdomen update
     //  swish abdomen in other direction to leg currently being extended
     
+    //  Get current time!
+    attractTime = millis();
+    
+    upAbdomen.setMode(upAbdomen.Stop);
+    
+    rLeg.setBounds(25,twitchAmplitude);                //  Get from happy/angry code
+    rLeg.setDuration(500);               //  Get from happy/angry code
+    rLeg.setTwitchInterval(1000, 0);
+    rLeg.setMode(rLeg.Twitch);
+    
+    lLeg.setBounds(30,twitchAmplitude);
+    lLeg.setDuration(500);
+    lLeg.setTwitchInterval(1000, 0);
+    lLeg.setMode(lLeg.Twitch);
+    
+    sideAbdomen.setBounds(28,50);
+    sideAbdomen.setDuration(1000);
+    sideAbdomen.setMode(sideAbdomen.Breath);
+    
     modeInit = true;
   }
-  //  Check for other states
-  //  timeout => normal
-  //  startled
-  //  jostled
+  
+  
+  
+  if (millis() - attractTime >= 5000) {
+    
+    sideAbdomen.setBounds(28,0);
+    sideAbdomen.setDuration(100);
+    sideAbdomen.setMode(sideAbdomen.Breath);
+    
+    changeMode(behaviour_normal);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////// FLUTTER
@@ -212,10 +238,10 @@ void startledMode(unsigned long deltaTime) {
     upAbdomen.setMode(upAbdomen.Breath);
     
     rLeg.setBounds(6,0);
-    rLeg.setMode(rLeg.Breath);
+    rLeg.setMode(rLeg.Twitch);
     
     lLeg.setBounds(45,0);
-    lLeg.setMode(lLeg.Breath);
+    lLeg.setMode(lLeg.Twitch);
     
     sideAbdomen.setBounds(28,0);
     sideAbdomen.setDuration(100);
@@ -237,9 +263,14 @@ void startledMode(unsigned long deltaTime) {
   lLeg.setBounds(tH(scared,45,30),tH(scared,0,twitchAmplitude));
   
   //  CHECKS
-  if (!startled) {
+  if (!startled && scared <= 0) {
     scared = 0;
     changeMode(behaviour_normal);
+  }
+  
+  if (jostled) {
+    //scared = 0;
+    //changeMode(behaviour_jostled);
   }
 }
 

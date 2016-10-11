@@ -56,14 +56,16 @@ class ServoController : public Servo {
     enum servoMode {
       Breath,
       Twitch,
-      Move
+      Move,
+      Stop
     };
     
     void setMode(int m);
     void breath(unsigned long deltaTime);
     void twitch(unsigned long deltaTime);
     void move(unsigned long deltaTime);
-    void panic(unsigned long deltaTime);
+    //  void panic(unsigned long deltaTime);
+    void stop();
     
     void setBounds(int midpoint, int range);
     void setDuration(int dur);

@@ -46,6 +46,9 @@ void ServoController::update(unsigned long dt) {
     case Move:
       move(dt);
       break;
+    case Stop:
+      stop();
+      break;
   }
   //  Constrain to mechanical minimum and maximum
   position = constrain(position, mechanicalMinimum, mechanicalMaximum);
@@ -162,6 +165,12 @@ void ServoController::move(unsigned long dt) {
   //  Work out current position
   position = source + ((target - source) * sinusoidalInOut(k));
 }
+
+void ServoController::stop() {
+  //  Does nothing!
+  //  Holds current position
+}
+
 /*
 //  If this is triggered while direction is -1 ... then the moth goes ballistic!
 void ServoController::panic(unsigned long dt) {
