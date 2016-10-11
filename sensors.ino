@@ -5,6 +5,7 @@
 //  Reduced only a bit when jostled ...
 //  Reduces to 0 when startled
 int scared = 0;
+int jostledTimeout = 0;
 
 //  Flags for behaviour
 boolean upsidedown          = true;
@@ -84,6 +85,7 @@ void jostleStatus() {
       jostled = true;
     }
     jostleTime = millis();
+    jostledTimeout = 1000;
   }
   if (jostled) {
     if (millis() - jostleTime >= jostleInterval) {

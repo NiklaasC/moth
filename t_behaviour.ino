@@ -138,7 +138,7 @@ void normalMode(unsigned long dt) {
   }
   //  If the moth is moved ...
   if (jostled) {
-    //changeMode(behaviour_jostled);
+    changeMode(behaviour_jostled);
   }
   //  If no conditions are met ... then we just continue in the same state.
 }
@@ -160,8 +160,8 @@ void attractMode(unsigned long dt) {
     
     upAbdomen.setMode(upAbdomen.Stop);
     
-    rLeg.setBounds(25,twitchAmplitude);                //  Get from happy/angry code
-    rLeg.setDuration(500);               //  Get from happy/angry code
+    rLeg.setBounds(25,twitchAmplitude);                 //  Get from happy/angry code
+    rLeg.setDuration(500);                              //  Get from happy/angry code
     rLeg.setTwitchInterval(1000, 0);
     rLeg.setMode(rLeg.Twitch);
     
@@ -207,7 +207,7 @@ void flutterMode(unsigned long dt) {
   if (wings.getFinishMoveStatus()) {
     //  Done with opening wings ... flutter!
     //  60 is open!
-    wings.setBounds(50,breathAmplitude);
+    wings.setBounds(50,breathAmplitude*2);
     wings.setDuration(breathSpeed);             //  GET THIS FROM BREATHING CODE!
     wings.setMode(wings.Breath);
     
@@ -219,6 +219,11 @@ void flutterMode(unsigned long dt) {
   //  It can't do anything ... so it'll just do it's thing!
   //  Just recoil if it's picked up!
   if (jostled) {
+    //  CLOSE WINGS
+    wings.setBounds(0,0);
+    wings.setDuration(100);                    //  FAST
+    wings.setMode(wings.Breath);
+    
     changeMode(behaviour_jostled);
   }
 }
@@ -269,8 +274,8 @@ void startledMode(unsigned long deltaTime) {
   }
   
   if (jostled) {
-    //scared = 0;
-    //changeMode(behaviour_jostled);
+    scared = 0;
+    changeMode(behaviour_jostled);
   }
 }
 
@@ -281,19 +286,63 @@ void jostledMode(unsigned long dt) {
   if (!modeInit) {
     Serial.println("JOSTLED MODE");
     //  curl up wait for being repositioned ... or held carefully
+    
+    upAbdomen.setBounds(35,0);
+    upAbdomen.setDuration(breathSpeed);
+    upAbdomen.setMode(upAbdomen.Breath);
+    
+    rLeg.setBounds(6,0);
+    rLeg.setMode(rLeg.Twitch);
+    
+    lLeg.setBounds(45,0);
+    lLeg.setMode(lLeg.Twitch);
+    
+    sideAbdomen.setBounds(28,0);
+    sideAbdomen.setDuration(100);
+    sideAbdomen.setMode(sideAbdomen.Breath);
+    
     modeInit = true;
+  }
+  
+  if (millis() - jostleTime >= 3000) {
+    jostledTimeout = jostledTimeout - (dt / ((jostleInterval - 3000)/1000));
+    if (jostledTimeout < 0) {
+      jostledTimeout = 0;
+    }
   }
   //  CHECKS
   //  unknown orientation but stable => held mode
   //  knownorientation + rightside up => wing flutter
   //  knownorientation + upsidedown => normal mode
+  upAbdomen.setBounds(tH(jostledTimeout, 55, 15),tH(jostledTimeout,0,breathAmplitude/2));
+  rLeg.setBounds(tH(jostledTimeout, 6, 25),tH(jostledTimeout,0,twitchAmplitude/2));
+  lLeg.setBounds(tH(jostledTimeout,45,30),tH(jostledTimeout,0,twitchAmplitude/2));
+  
+  if (jostledTimeout == 0) {
+    if (!orientationChange) {
+      if(upsidedown) {
+        //  Start transitioning to normal state
+        scared = 0;
+        changeMode(behaviour_normal);
+      } else {
+        //  Start transitioning to flutter state
+        upAbdomen.setMode(upAbdomen.Stop);
+        rLeg.setMode(rLeg.Stop);
+        lLeg.setMode(lLeg.Stop);
+        
+        scared = 0;
+        changeMode(behaviour_flutter);
+        
+      }
+    }
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////// HELD
 void heldMode(unsigned long dt) {
   if (!modeInit) {
     Serial.println("HELD MODE");
-    //  Held!
+    //  Held! - Small movements
     modeInit = true;
   }
   //  CHECK OTHER STATES
