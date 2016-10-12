@@ -32,7 +32,7 @@ const int totalServos = 5;
 const int servoConfig[totalServos][5] = {
 //  pin Min   Max   Inv MaxRng  Offset
   { 8,  6,    50,  0,  0 },  //  Right Leg  //  Moth's Right Leg // DONE!
-  { 9,  2,    45,  1,  0 },  //  Left Leg
+  { 9,  2,    50,  1,  0 },  //  Left Leg
   { 10, 5,    60,  0,  0 },  //  Up Abdomen  //  I think this is actually inverted
   { 11, 2,    55,  0,  0 },  //  Side Abdomen
   { 12, 3,    60,  0,  60 }     //  Wings             Calibrated

@@ -76,7 +76,7 @@ void updateBehaviour() {
         jostledMode(dt);
     }
     
-    Serial.println(scared);
+    //  Serial.println(scared);
   }
 }
 
@@ -106,7 +106,7 @@ void normalMode(unsigned long dt) {
     rLeg.setTwitchInterval(twitchiness, twitchRange);
     rLeg.setMode(rLeg.Twitch);
     
-    lLeg.setBounds(30,twitchAmplitude);
+    lLeg.setBounds(25,twitchAmplitude);
     lLeg.setDuration(1600);
     lLeg.setTwitchInterval(twitchiness, twitchRange);
     lLeg.setMode(lLeg.Twitch);
@@ -314,15 +314,15 @@ void jostledMode(unsigned long dt) {
   //  unknown orientation but stable => held mode
   //  knownorientation + rightside up => wing flutter
   //  knownorientation + upsidedown => normal mode
-  upAbdomen.setBounds(tH(jostledTimeout, 55, 15),tH(jostledTimeout,0,breathAmplitude/2));
-  rLeg.setBounds(tH(jostledTimeout, 6, 25),tH(jostledTimeout,0,twitchAmplitude/2));
-  lLeg.setBounds(tH(jostledTimeout,45,30),tH(jostledTimeout,0,twitchAmplitude/2));
+  upAbdomen.setBounds(tH(jostledTimeout, 55, 15),tH(jostledTimeout,0,breathAmplitude/4));
+  rLeg.setBounds(tH(jostledTimeout, 6, 25),tH(jostledTimeout,0,twitchAmplitude/4));
+  lLeg.setBounds(tH(jostledTimeout,45,30),tH(jostledTimeout,0,twitchAmplitude/4));
   
   if (jostledTimeout == 0) {
     if (!orientationChange) {
       if(upsidedown) {
         //  Start transitioning to normal state
-        scared = 0;
+        //  scared = 0;
         changeMode(behaviour_normal);
       } else {
         //  Start transitioning to flutter state
@@ -330,7 +330,7 @@ void jostledMode(unsigned long dt) {
         rLeg.setMode(rLeg.Stop);
         lLeg.setMode(lLeg.Stop);
         
-        scared = 0;
+        //  scared = 0;
         changeMode(behaviour_flutter);
         
       }
@@ -372,6 +372,6 @@ int tH(int variable, int currentPosition, int desiredPosition) {
   float temp1 = 1000 - variable;
   temp1 = temp1/1000;
   int temp = currentPosition - temp1*(currentPosition - desiredPosition);
-  Serial.print(temp);Serial.print(" ");Serial.println(temp1);
+  //  Serial.print(temp);Serial.print(" ");Serial.println(temp1);
   return temp;
 }

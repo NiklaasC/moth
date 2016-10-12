@@ -27,10 +27,12 @@ int playInterval        = 1000 * 3;
 unsigned long playTime  = 0;
 boolean playTimerSet = false;
 
-float orientationBound = 0.88;
+float orientationBoundUSD = -0.88;
+float orientationBoundRWU = 0.75;
+
 int iRStartle = 50;
 //  jostledBound was 0.03 - but very very sensitive
-float jostledBound = 0.1;
+float jostledBound = 0.18;
 
 //  Recoil
 //  A state for when the moth is picked up, startled or jostled.
@@ -65,7 +67,7 @@ void playStatus() {
   } else {
     if (playing) {
       playing = false;
-      Serial.println("NOT PLAYING!");
+      Serial.println("Flag: PLAYING!");
     }
     playTimerSet = false;
   }
@@ -73,7 +75,7 @@ void playStatus() {
   if ((millis() - playTime >= playInterval ) && playTimerSet) {
     if (!playing) {
       playing = true;
-      Serial.println("PLAYING!");
+      Serial.println("Flag: PLAYING!");
     }
   }
 }
@@ -82,7 +84,7 @@ void playStatus() {
 void jostleStatus() {
   if (abs(iMU.getJostle()) >= jostledBound) {
     if (!jostled) {
-      Serial.println("FLAG: Recoil");
+      Serial.println("Flag: Jostled");
       jostled = true;
     }
     jostleTime = millis();
@@ -91,7 +93,7 @@ void jostleStatus() {
   if (jostled) {
     if (millis() - jostleTime >= jostleInterval) {
       jostled = false;
-      Serial.println("FLAG: Un-Recoil");
+      Serial.println("Flag: Un-jostled");
     }
   }
 }
@@ -105,14 +107,14 @@ void startledStatus() {
     }
     startled = true;
     playing = false;
-    Serial.print("FLAG: Startled");
+    Serial.println("Flag: Startled");
     scared = 1000;
     startledTime = millis();
   }
   if (startled) {
     if (millis() - startledTime >= startledInterval) {
       startled = false;
-      Serial.println("FLAG: Un-Startled");
+      Serial.println("Flag: Un-Startled");
     }
   }
 }
@@ -121,24 +123,24 @@ void startledStatus() {
 //  Checks to see if the moth's orientation has changed     - bool orientationChange
 //  Checks to see whether the moth is upside-down           - bool upsidedown
 void orientationStatus() {
-  if (iMU.getOrientation() < orientationBound && iMU.getOrientation() > -orientationBound && !orientationChange) {
+  if (iMU.getOrientation() < orientationBoundRWU && iMU.getOrientation() > orientationBoundUSD && !orientationChange) {
     //  set flag
     orientationChange = true;
     playing = false;
-    Serial.println("FLAG: Orientation Unknown");
+    Serial.println("Flag: Orientation: Unknown");
     changeTime = millis();
   }
-  if ((iMU.getOrientation() > orientationBound || iMU.getOrientation() < -orientationBound) && orientationChange) {
+  if ((iMU.getOrientation() > orientationBoundRWU || iMU.getOrientation() < orientationBoundUSD) && orientationChange) {
     if (millis() - changeTime >= settledInterval) {
       
-      if( iMU.getOrientation() > orientationBound) {
+      if( iMU.getOrientation() > orientationBoundRWU) {
         upsidedown = false;
         orientationChange = false;
-        Serial.println("FLAG: Orientation: Rightway-up!");
+        Serial.println("Flag: Orientation: Rightway-up");
       } else {
         upsidedown = true;
         orientationChange = false;
-        Serial.println("FLAG: Orientation: Upside-down!");
+        Serial.println("Flag: Orientation: Upside-down");
       }
     }
   }
